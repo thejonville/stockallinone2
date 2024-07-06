@@ -13,9 +13,11 @@ from datetime import datetime, timedelta
 from newsapi import NewsApiClient
 from flair.models import TextClassifier
 from flair.data import Sentence
+import pytz
 
 # Define the anchored_vwap function
 def anchored_vwap(data, anchor_date):
+    anchor_date = pd.Timestamp(anchor_date).tz_localize(data.index.tz)
     anchor_data = data.loc[anchor_date:]
     cumulative_volume = anchor_data['Volume'].cumsum()
     cumulative_volume_price = (anchor_data['Close'] * anchor_data['Volume']).cumsum()
@@ -139,16 +141,16 @@ def main():
     interval = st.selectbox("Select data interval:", interval_options, index=interval_options.index('1d'))
 
     # User input for anchored VWAP date
-    default_anchor_date = (datetime.now() - timedelta(days=180)).date()
+    default_anchor_date = (datetime.now(pytz.utc) - timedelta(days=180)).date()
     anchor_date = st.date_input("Select anchored VWAP date:", value=default_anchor_date)
 
     # User input for news date range
     st.subheader("News Analysis Date Range")
     col1, col2 = st.columns(2)
     with col1:
-        news_start_date = st.date_input("Start date", value=datetime.now().date() - timedelta(days=7))
+        news_start_date = st.date_input("Start date", value=datetime.now(pytz.utc).date() - timedelta(days=7))
     with col2:
-        news_end_date = st.date_input("End date", value=datetime.now().date())
+        news_end_date = st.date_input("End date", value=datetime.now(pytz.utc).date())
 
     if st.button("Analyze"):
         with st.spinner("Analyzing stock data..."):
