@@ -3,5 +3,5 @@ yfinance
 pandas
 plotly
 datetime
-newsapi
+newsapi-python
 flair
