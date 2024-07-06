@@ -5,4 +5,4 @@ plotly
 datetime
 newsapi-python
 flair
-scipy
+scipy==1.12
