@@ -88,10 +88,8 @@ def create_plot(filtered, ticker):
     return fig
 
 # Function to perform news sentiment analysis
-def analyze_news_sentiment(ticker):
+def analyze_news_sentiment(ticker, start_date, end_date):
     newsapi = NewsApiClient(api_key='a64474fc27b6485294e6e08e893797d8')
-    end_date = datetime.now()
-    start_date = end_date - timedelta(days=3)
     
     response = newsapi.get_everything(
         q=ticker,
@@ -144,6 +142,14 @@ def main():
     default_anchor_date = (datetime.now() - timedelta(days=180)).date()
     anchor_date = st.date_input("Select anchored VWAP date:", value=default_anchor_date)
 
+    # User input for news date range
+    st.subheader("News Analysis Date Range")
+    col1, col2 = st.columns(2)
+    with col1:
+        news_start_date = st.date_input("Start date", value=datetime.now().date() - timedelta(days=7))
+    with col2:
+        news_end_date = st.date_input("End date", value=datetime.now().date())
+
     if st.button("Analyze"):
         with st.spinner("Analyzing stock data..."):
             filtered_data = analyze_stock(ticker, period, interval, anchor_date)
@@ -159,10 +165,11 @@ def main():
 
             # Perform news sentiment analysis
             with st.spinner("Analyzing news sentiment..."):
-                sentiment_score, articles = analyze_news_sentiment(ticker)
+                sentiment_score, articles = analyze_news_sentiment(ticker, news_start_date, news_end_date)
 
             st.subheader("News Sentiment Analysis")
             st.write(f"Total Sentiment Score: {sentiment_score:.2f}")
+            st.write(f"News date range: {news_start_date} to {news_end_date}")
 
             st.subheader("Recent News Articles")
             for article in articles:
@@ -172,4 +179,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
